@@ -84,7 +84,13 @@ export async function deleteEmployee(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function uploadEvidence(id: string, file: File): Promise<Employee> {
+export async function uploadEvidence(
+  id: string,
+  file: File,
+  options?: { mode?: 'replace' | 'append' }
+): Promise<Employee> {
+  const mode = options?.mode ?? 'replace'
+
   // 1. Dapatkan employee saat ini untuk append file info
   const { data: current, error: fetchErr } = await supabase
     .from('employees')
@@ -94,6 +100,17 @@ export async function uploadEvidence(id: string, file: File): Promise<Employee> 
     
   if (fetchErr) throw fetchErr
   
+  if (mode === 'replace') {
+    const prevFiles = Array.isArray(current.evidence_files) ? current.evidence_files : []
+    const paths = prevFiles.map((f: any) => f?.storagePath).filter((p: any) => typeof p === 'string' && p.length)
+    if (paths.length) {
+      await supabase.storage
+        .from('evidences')
+        .remove(paths)
+        .catch(() => null)
+    }
+  }
+
   // 2. Upload ke Storage
   const fileExt = file.name.split('.').pop()
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
@@ -116,13 +133,14 @@ export async function uploadEvidence(id: string, file: File): Promise<Employee> 
     originalName: file.name,
     fileName: fileName,
     urlPath: publicUrlData.publicUrl,
+    storagePath: filePath,
     mimeType: file.type,
     size: file.size,
     uploadedAt: new Date().toISOString()
   }
   
-  const files = Array.isArray(current.evidence_files) ? current.evidence_files : []
-  files.unshift(newFile)
+  const prevFiles = Array.isArray(current.evidence_files) ? current.evidence_files : []
+  const files = mode === 'append' ? [newFile, ...prevFiles] : [newFile]
   
   let newStatus = current.evidence_status
   if (newStatus === 'Belum') newStatus = 'Belum Lengkap'
