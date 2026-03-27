@@ -9,6 +9,7 @@ export type EvidenceFile = {
   originalName: string
   fileName: string
   urlPath: string
+  storagePath?: string
   mimeType: string
   size: number
   uploadedAt: string
