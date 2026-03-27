@@ -148,6 +148,8 @@ export default function App() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [query, setQuery] = useState('')
   const [busy, setBusy] = useState(false)
+  const [saveBusy, setSaveBusy] = useState(false)
+  const [resetBusy, setResetBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, Draft>>({})
   const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
@@ -155,6 +157,83 @@ export default function App() {
   const [adminLoginOpen, setAdminLoginOpen] = useState(false)
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
   const isAdmin = session?.role === 'admin'
+
+  function isDirty(emp: Employee, d: Draft | undefined) {
+    if (!d) return false
+    const link = d.realization_link.trim()
+    const empLink = emp.realization_link || ''
+    return (
+      d.name.trim() !== emp.name ||
+      d.plan_status !== emp.plan_status ||
+      d.realization_status !== emp.realization_status ||
+      d.evidence_status !== emp.evidence_status ||
+      link !== empLink
+    )
+  }
+
+  const dirtyCount = useMemo(() => {
+    if (!isAdmin) return 0
+    let count = 0
+    for (const emp of employees) {
+      if (isDirty(emp, drafts[emp.id])) count += 1
+    }
+    return count
+  }, [employees, drafts, isAdmin])
+
+  async function saveAll() {
+    if (!isAdmin) return
+    const idsToSave = employees.filter((e) => isDirty(e, drafts[e.id])).map((e) => e.id)
+    if (!idsToSave.length) return
+    setError(null)
+    setSaveBusy(true)
+    try {
+      const updatedById: Record<string, Employee> = {}
+      for (const id of idsToSave) {
+        const emp = employees.find((e) => e.id === id)
+        const d = drafts[id]
+        if (!emp || !d) continue
+        const updated = await updateEmployee(id, {
+          name: d.name.trim(),
+          plan_status: d.plan_status,
+          realization_status: d.realization_status,
+          evidence_status: d.evidence_status,
+          realization_link: d.realization_link.trim() ? d.realization_link.trim() : null
+        })
+        updatedById[id] = updated
+      }
+      setEmployees((prev) => prev.map((e) => updatedById[e.id] ?? e))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menyimpan perubahan')
+    } finally {
+      setSaveBusy(false)
+    }
+  }
+
+  async function resetBulanan() {
+    if (!isAdmin) return
+    const ok = window.confirm('Reset bulanan akan mengubah semua status menjadi "Belum" dan mengosongkan link & bukti. Lanjutkan?')
+    if (!ok) return
+    setError(null)
+    setResetBusy(true)
+    try {
+      const updatedById: Record<string, Employee> = {}
+      for (const emp of employees) {
+        const updated = await updateEmployee(emp.id, {
+          plan_status: 'Belum',
+          realization_status: 'Belum',
+          evidence_status: 'Belum',
+          realization_link: null,
+          evidence_files: []
+        })
+        updatedById[emp.id] = updated
+      }
+      setEmployees((prev) => prev.map((e) => updatedById[e.id] ?? e))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal reset bulanan')
+    } finally {
+      setResetBusy(false)
+    }
+  }
 
   async function load() {
     setError(null)
@@ -316,6 +395,21 @@ export default function App() {
                 </button>
               </form>
             ) : null}
+            {isAdmin ? (
+              <button
+                className="button primary"
+                type="button"
+                onClick={saveAll}
+                disabled={saveBusy || resetBusy || dirtyCount === 0}
+              >
+                {saveBusy ? 'Menyimpan...' : `Simpan Semua${dirtyCount ? ` (${dirtyCount})` : ''}`}
+              </button>
+            ) : null}
+            {isAdmin ? (
+              <button className="button danger" type="button" onClick={resetBulanan} disabled={saveBusy || resetBusy}>
+                {resetBusy ? 'Reset...' : 'Reset Bulanan'}
+              </button>
+            ) : null}
             <button className="button" onClick={load} disabled={busy}>
               {busy ? 'Memuat...' : 'Refresh'}
             </button>
@@ -333,7 +427,7 @@ export default function App() {
                 <th style={{ minWidth: 160 }}>Rencana Aksi</th>
                 <th style={{ minWidth: 220 }}>Link &amp; Realisasi</th>
                 <th style={{ minWidth: 260 }}>Bukti Dukung</th>
-                {session?.role === 'admin' ? <th style={{ width: 170 }}>Aksi</th> : null}
+                {session?.role === 'admin' ? <th style={{ width: 110 }}>Aksi</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -468,7 +562,7 @@ export default function App() {
                               setRowBusy((prev) => ({ ...prev, [emp.id]: true }))
                               setError(null)
                               try {
-                                const updated = await uploadEvidence(emp.id, file)
+                                const updated = await uploadEvidence(emp.id, file, { mode: 'replace' })
                                 setEmployees((prev) => prev.map((p) => (p.id === emp.id ? updated : p)))
                               } catch (err) {
                                 setError(err instanceof Error ? err.message : 'Upload gagal')
@@ -484,7 +578,7 @@ export default function App() {
                             onClick={() => fileInputs.current[emp.id]?.click()}
                             disabled={rowBusy[emp.id]}
                           >
-                            {rowBusy[emp.id] ? 'Upload...' : 'Upload Bukti'}
+                            {rowBusy[emp.id] ? 'Upload...' : emp.evidence_files.length ? 'Ganti Bukti' : 'Upload Bukti'}
                           </button>
                         </div>
                       ) : null}
@@ -493,33 +587,6 @@ export default function App() {
                   {session?.role === 'admin' ? (
                     <td>
                       <div className="row" style={{ justifyContent: 'flex-end' }}>
-                        <button
-                          className="button primary"
-                          type="button"
-                          disabled={rowBusy[emp.id]}
-                          onClick={async () => {
-                            const d = drafts[emp.id]
-                            if (!d) return
-                            setRowBusy((prev) => ({ ...prev, [emp.id]: true }))
-                            setError(null)
-                            try {
-                              const updated = await updateEmployee(emp.id, {
-                                name: d.name,
-                                plan_status: d.plan_status,
-                                realization_status: d.realization_status,
-                                evidence_status: d.evidence_status,
-                                realization_link: d.realization_link
-                              })
-                              setEmployees((prev) => prev.map((p) => (p.id === emp.id ? updated : p)))
-                            } catch (err) {
-                              setError(err instanceof Error ? err.message : 'Gagal menyimpan')
-                            } finally {
-                              setRowBusy((prev) => ({ ...prev, [emp.id]: false }))
-                            }
-                          }}
-                        >
-                          Simpan
-                        </button>
                         <button
                           className="button danger"
                           type="button"
