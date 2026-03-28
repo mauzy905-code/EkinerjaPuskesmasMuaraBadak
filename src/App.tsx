@@ -49,9 +49,9 @@ function MenuIcon() {
 const filterItems: Array<{ key: ProgresFilter; label: string; className: string }> = [
   { key: 'all', label: 'Daftar Nama Pegawai', className: 'pill-all' },
   { key: 'all_belum', label: 'Semua Kosong', className: 'pill-all_belum' },
+  { key: 'ra_sudah_lr_belum', label: 'Rencana Aksi Sudah', className: 'pill-ra_sudah_lr_belum' },
   { key: 'lr_belum_selesai', label: 'Link & Realisasi Belum Selesai', className: 'pill-lr_belum_selesai' },
   { key: 'lr_selesai', label: 'Link & Realisasi Selesai', className: 'pill-lr_selesai' },
-  { key: 'ra_sudah_lr_belum', label: 'Rencana Aksi Sudah', className: 'pill-ra_sudah_lr_belum' },
   { key: 'ra_lr_sudah_bukti_belum', label: 'Bukti Dukung Belum ada', className: 'pill-ra_lr_sudah_bukti_belum' },
   {
     key: 'ra_lr_sudah_bukti_belum_lengkap',
