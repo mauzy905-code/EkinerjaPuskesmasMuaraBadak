@@ -543,7 +543,7 @@ export default function App() {
                           Buka link realisasi
                         </a>
                       ) : (
-                        <span className="muted">Belum ada link</span>
+                        <span />
                       )}
                     </div>
                   </td>
