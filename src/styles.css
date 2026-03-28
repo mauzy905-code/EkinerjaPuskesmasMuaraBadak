@@ -131,10 +131,45 @@ a {
   padding: 8px 12px;
   min-height: 36px;
   font-size: 12px;
+  transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 .pill.active {
-  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+}
+
+.pill:active {
+  transform: translateY(1px);
+}
+
+.pill.pill-all.active {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.pill.pill-all_belum.active {
+  background: rgba(243, 18, 96, 0.2);
+  border-color: rgba(243, 18, 96, 0.45);
+}
+
+.pill.pill-ra_sudah_lr_belum.active {
+  background: rgba(245, 165, 36, 0.18);
+  border-color: rgba(245, 165, 36, 0.45);
+}
+
+.pill.pill-ra_lr_sudah_bukti_belum.active {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.45);
+}
+
+.pill.pill-ra_lr_sudah_bukti_belum_lengkap.active {
+  background: rgba(245, 165, 36, 0.16);
+  border-color: rgba(245, 165, 36, 0.4);
+}
+
+.pill.pill-ra_lr_sudah_bukti_sudah_lengkap.active {
+  background: rgba(24, 201, 100, 0.16);
+  border-color: rgba(24, 201, 100, 0.4);
 }
 
 .iconButton {
