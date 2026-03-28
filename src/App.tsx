@@ -526,19 +526,7 @@ export default function App() {
                       ) : (
                         <Badge label={emp.realization_status} />
                       )}
-                      {session?.role === 'admin' ? (
-                        <input
-                          className="input"
-                          placeholder="Link realisasi (opsional)"
-                          value={drafts[emp.id]?.realization_link ?? emp.realization_link ?? ''}
-                          onChange={(e) =>
-                            setDrafts((prev) => ({
-                              ...prev,
-                              [emp.id]: { ...(prev[emp.id] ?? ({} as Draft)), realization_link: e.target.value }
-                            }))
-                          }
-                        />
-                      ) : emp.realization_link ? (
+                      {emp.realization_link ? (
                         <a className="link" href={emp.realization_link} target="_blank" rel="noreferrer">
                           Buka link realisasi
                         </a>
