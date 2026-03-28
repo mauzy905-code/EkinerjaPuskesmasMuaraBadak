@@ -12,8 +12,8 @@ import {
 } from './api'
 
 function statusDot(status: PlanStatus | RealizationStatus | EvidenceStatus): 'good' | 'warn' | 'bad' {
-  if (status === 'Sudah' || status === 'Sudah Lengkap') return 'good'
-  if (status === 'Belum Lengkap') return 'warn'
+  if (status === 'Selesai') return 'good'
+  if (status === 'Belum Lengkap' || status === 'Tidak Lengkap') return 'warn'
   return 'bad'
 }
 
@@ -46,7 +46,7 @@ function MenuIcon() {
 
 const filterItems: Array<{ key: ProgresFilter; label: string; className: string }> = [
   { key: 'all', label: 'Semua', className: 'pill-all' },
-  { key: 'all_belum', label: 'Semua Belum', className: 'pill-all_belum' },
+  { key: 'all_belum', label: 'Semua Kosong', className: 'pill-all_belum' },
   { key: 'ra_sudah_lr_belum', label: 'Rencana Aksi Sudah', className: 'pill-ra_sudah_lr_belum' },
   { key: 'ra_lr_sudah_bukti_belum', label: 'Bukti Dukung Belum ada', className: 'pill-ra_lr_sudah_bukti_belum' },
   {
@@ -56,7 +56,7 @@ const filterItems: Array<{ key: ProgresFilter; label: string; className: string 
   },
   {
     key: 'ra_lr_sudah_bukti_sudah_lengkap',
-    label: 'Bukti Dukung Sudah Lengkap',
+    label: 'Bukti Dukung Selesai',
     className: 'pill-ra_lr_sudah_bukti_sudah_lengkap'
   }
 ]
@@ -253,7 +253,7 @@ export default function App() {
 
   async function resetBulanan() {
     if (!isAdmin) return
-    const ok = window.confirm('Reset bulanan akan mengubah semua status menjadi "Belum" dan mengosongkan link & bukti. Lanjutkan?')
+    const ok = window.confirm('Reset bulanan akan mengubah semua status menjadi "Kosong" dan mengosongkan link & bukti. Lanjutkan?')
     if (!ok) return
     setError(null)
     setResetBusy(true)
@@ -261,9 +261,9 @@ export default function App() {
       const updatedById: Record<string, Employee> = {}
       for (const emp of employees) {
         const updated = await updateEmployee(emp.id, {
-          plan_status: 'Belum',
-          realization_status: 'Belum',
-          evidence_status: 'Belum',
+          plan_status: 'Kosong',
+          realization_status: 'Kosong',
+          evidence_status: 'Kosong',
           realization_link: null,
           keterangan: null,
           evidence_files: []
@@ -376,19 +376,19 @@ export default function App() {
     if (filter === 'all') return base
     return base.filter((e) => {
       if (filter === 'all_belum') {
-        return e.plan_status === 'Belum' && e.realization_status === 'Belum' && e.evidence_status === 'Belum'
+        return e.plan_status === 'Kosong' && e.realization_status === 'Kosong' && e.evidence_status === 'Kosong'
       }
       if (filter === 'ra_sudah_lr_belum') {
-        return e.plan_status === 'Sudah' && e.realization_status === 'Belum'
+        return e.plan_status === 'Selesai' && e.realization_status === 'Kosong'
       }
       if (filter === 'ra_lr_sudah_bukti_belum') {
-        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Belum'
+        return e.plan_status === 'Selesai' && e.realization_status === 'Selesai' && e.evidence_status === 'Kosong'
       }
       if (filter === 'ra_lr_sudah_bukti_belum_lengkap') {
-        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Belum Lengkap'
+        return e.plan_status === 'Selesai' && e.realization_status === 'Selesai' && e.evidence_status === 'Belum Lengkap'
       }
       if (filter === 'ra_lr_sudah_bukti_sudah_lengkap') {
-        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Sudah Lengkap'
+        return e.plan_status === 'Selesai' && e.realization_status === 'Selesai' && e.evidence_status === 'Selesai'
       }
       return true
     })
@@ -606,8 +606,8 @@ export default function App() {
                           }))
                         }
                       >
-                        <option value="Belum">Belum</option>
-                        <option value="Sudah">Sudah</option>
+                        <option value="Kosong">Kosong</option>
+                        <option value="Selesai">Selesai</option>
                       </select>
                     ) : (
                       <Badge label={emp.plan_status} />
@@ -629,8 +629,9 @@ export default function App() {
                             }))
                           }
                         >
-                          <option value="Belum">Belum</option>
-                          <option value="Sudah">Sudah</option>
+                          <option value="Kosong">Kosong</option>
+                          <option value="Tidak Lengkap">Tidak Lengkap</option>
+                          <option value="Selesai">Selesai</option>
                         </select>
                       ) : (
                         <Badge label={emp.realization_status} />
@@ -660,9 +661,9 @@ export default function App() {
                             }))
                           }
                         >
-                          <option value="Belum">Belum</option>
+                          <option value="Kosong">Kosong</option>
                           <option value="Belum Lengkap">Belum Lengkap</option>
-                          <option value="Sudah Lengkap">Sudah Lengkap</option>
+                          <option value="Selesai">Selesai</option>
                         </select>
                       ) : (
                         <Badge label={emp.evidence_status} />
