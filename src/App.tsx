@@ -29,6 +29,8 @@ function Badge({ label }: { label: string }) {
 type ProgresFilter =
   | 'all'
   | 'all_belum'
+  | 'lr_belum_selesai'
+  | 'lr_selesai'
   | 'ra_sudah_lr_belum'
   | 'ra_lr_sudah_bukti_belum'
   | 'ra_lr_sudah_bukti_belum_lengkap'
@@ -45,8 +47,10 @@ function MenuIcon() {
 }
 
 const filterItems: Array<{ key: ProgresFilter; label: string; className: string }> = [
-  { key: 'all', label: 'Semua', className: 'pill-all' },
+  { key: 'all', label: 'Daftar Nama Pegawai', className: 'pill-all' },
   { key: 'all_belum', label: 'Semua Kosong', className: 'pill-all_belum' },
+  { key: 'lr_belum_selesai', label: 'Link & Realisasi Belum Selesai', className: 'pill-lr_belum_selesai' },
+  { key: 'lr_selesai', label: 'Link & Realisasi Selesai', className: 'pill-lr_selesai' },
   { key: 'ra_sudah_lr_belum', label: 'Rencana Aksi Sudah', className: 'pill-ra_sudah_lr_belum' },
   { key: 'ra_lr_sudah_bukti_belum', label: 'Bukti Dukung Belum ada', className: 'pill-ra_lr_sudah_bukti_belum' },
   {
@@ -377,6 +381,12 @@ export default function App() {
     return base.filter((e) => {
       if (filter === 'all_belum') {
         return e.plan_status === 'Kosong' && e.realization_status === 'Kosong' && e.evidence_status === 'Kosong'
+      }
+      if (filter === 'lr_belum_selesai') {
+        return e.realization_status === 'Kosong' || e.realization_status === 'Tidak Lengkap'
+      }
+      if (filter === 'lr_selesai') {
+        return e.realization_status === 'Selesai'
       }
       if (filter === 'ra_sudah_lr_belum') {
         return e.plan_status === 'Selesai' && e.realization_status === 'Kosong'
