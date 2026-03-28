@@ -22,6 +22,7 @@ export type Employee = {
   realization_status: RealizationStatus
   evidence_status: EvidenceStatus
   realization_link: string | null
+  keterangan: string | null
   evidence_files: EvidenceFile[]
   created_at: string
   updated_at: string
