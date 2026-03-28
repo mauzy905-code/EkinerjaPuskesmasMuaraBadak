@@ -152,6 +152,16 @@ a {
   border-color: rgba(243, 18, 96, 0.45);
 }
 
+.pill.pill-lr_belum_selesai.active {
+  background: rgba(245, 165, 36, 0.18);
+  border-color: rgba(245, 165, 36, 0.45);
+}
+
+.pill.pill-lr_selesai.active {
+  background: rgba(24, 201, 100, 0.16);
+  border-color: rgba(24, 201, 100, 0.4);
+}
+
 .pill.pill-ra_sudah_lr_belum.active {
   background: rgba(245, 165, 36, 0.18);
   border-color: rgba(245, 165, 36, 0.45);
