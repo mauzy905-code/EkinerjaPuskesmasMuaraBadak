@@ -503,21 +503,21 @@ export default function App() {
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_belum')}
               >
-                RA+LR Sudah, Bukti Belum
+                Bukti Dukung Belum
               </button>
               <button
                 className={`button pill pill-ra_lr_sudah_bukti_belum_lengkap ${filter === 'ra_lr_sudah_bukti_belum_lengkap' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_belum_lengkap')}
               >
-                RA+LR Sudah, Bukti Belum Lengkap
+                Bukti Dukung Belum Lengkap
               </button>
               <button
                 className={`button pill pill-ra_lr_sudah_bukti_sudah_lengkap ${filter === 'ra_lr_sudah_bukti_sudah_lengkap' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_sudah_lengkap')}
               >
-                RA+LR Sudah, Bukti Sudah Lengkap
+                Bukti Dukung Sudah Lengkap
               </button>
             </div>
           </div>
