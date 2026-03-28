@@ -188,6 +188,31 @@ a {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.dropdown {
+  position: relative;
+}
+
+.dropdownBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: start end;
+  padding: 76px 14px 14px;
+}
+
+.dropdownMenu {
+  width: min(520px, 100%);
+  background: rgba(10, 14, 25, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
 .modalBackdrop {
   position: fixed;
   inset: 0;
