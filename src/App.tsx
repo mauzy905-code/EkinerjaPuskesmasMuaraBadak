@@ -383,7 +383,10 @@ export default function App() {
         return e.plan_status === 'Kosong' && e.realization_status === 'Kosong' && e.evidence_status === 'Kosong'
       }
       if (filter === 'lr_belum_selesai') {
-        return e.realization_status === 'Kosong' || e.realization_status === 'Tidak Lengkap'
+        return (
+          e.plan_status === 'Selesai' &&
+          (e.realization_status === 'Kosong' || e.realization_status === 'Tidak Lengkap')
+        )
       }
       if (filter === 'lr_selesai') {
         return e.realization_status === 'Selesai'
