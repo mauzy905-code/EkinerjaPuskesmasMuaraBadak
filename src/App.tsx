@@ -47,16 +47,16 @@ function MenuIcon() {
 const filterItems: Array<{ key: ProgresFilter; label: string; className: string }> = [
   { key: 'all', label: 'Semua', className: 'pill-all' },
   { key: 'all_belum', label: 'Semua Belum', className: 'pill-all_belum' },
-  { key: 'ra_sudah_lr_belum', label: 'RA Sudah, LR Belum', className: 'pill-ra_sudah_lr_belum' },
-  { key: 'ra_lr_sudah_bukti_belum', label: 'RA+LR Sudah, Bukti Belum', className: 'pill-ra_lr_sudah_bukti_belum' },
+  { key: 'ra_sudah_lr_belum', label: 'Rencana Aksi Sudah', className: 'pill-ra_sudah_lr_belum' },
+  { key: 'ra_lr_sudah_bukti_belum', label: 'Bukti Dukung Belum ada', className: 'pill-ra_lr_sudah_bukti_belum' },
   {
     key: 'ra_lr_sudah_bukti_belum_lengkap',
-    label: 'RA+LR Sudah, Bukti Belum Lengkap',
+    label: 'Bukti Dukung Belum Lengkap',
     className: 'pill-ra_lr_sudah_bukti_belum_lengkap'
   },
   {
     key: 'ra_lr_sudah_bukti_sudah_lengkap',
-    label: 'RA+LR Sudah, Bukti Sudah Lengkap',
+    label: 'Bukti Dukung Sudah Lengkap',
     className: 'pill-ra_lr_sudah_bukti_sudah_lengkap'
   }
 ]
