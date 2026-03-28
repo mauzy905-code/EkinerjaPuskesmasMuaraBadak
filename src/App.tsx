@@ -32,6 +32,7 @@ type Draft = {
   realization_status: RealizationStatus
   evidence_status: EvidenceStatus
   realization_link: string
+  keterangan: string
 }
 
 function AdminLoginModal({
@@ -162,12 +163,15 @@ export default function App() {
     if (!d) return false
     const link = d.realization_link.trim()
     const empLink = emp.realization_link || ''
+    const ket = d.keterangan.trim()
+    const empKet = emp.keterangan || ''
     return (
       d.name.trim() !== emp.name ||
       d.plan_status !== emp.plan_status ||
       d.realization_status !== emp.realization_status ||
       d.evidence_status !== emp.evidence_status ||
-      link !== empLink
+      link !== empLink ||
+      ket !== empKet
     )
   }
 
@@ -197,7 +201,8 @@ export default function App() {
           plan_status: d.plan_status,
           realization_status: d.realization_status,
           evidence_status: d.evidence_status,
-          realization_link: d.realization_link.trim() ? d.realization_link.trim() : null
+          realization_link: d.realization_link.trim() ? d.realization_link.trim() : null,
+          keterangan: d.keterangan.trim() ? d.keterangan.trim() : null
         })
         updatedById[id] = updated
       }
@@ -223,6 +228,7 @@ export default function App() {
           realization_status: 'Belum',
           evidence_status: 'Belum',
           realization_link: null,
+          keterangan: null,
           evidence_files: []
         })
         updatedById[emp.id] = updated
@@ -294,11 +300,38 @@ export default function App() {
         plan_status: emp.plan_status,
         realization_status: emp.realization_status,
         evidence_status: emp.evidence_status,
-        realization_link: emp.realization_link || ''
+        realization_link: emp.realization_link || '',
+        keterangan: emp.keterangan || ''
       }
     }
     setDrafts(next)
   }, [employees])
+
+  const fileLabel = useMemo(() => 'Bukti SS', [])
+
+  function EvidenceChip({ url }: { url: string }) {
+    return (
+      <a className="fileChip" href={url} target="_blank" rel="noreferrer" title={fileLabel}>
+        <span className="fileIcon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 3h6l3 3v15H6V3h3z"
+              stroke="rgba(255,255,255,0.85)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M15 3v3h3"
+              stroke="rgba(255,255,255,0.85)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <span>{fileLabel}</span>
+      </a>
+    )
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -510,7 +543,7 @@ export default function App() {
                           Buka link realisasi
                         </a>
                       ) : (
-                        <span className="muted">Belum ada link</span>
+                        <span className="muted">Keterangan: {emp.keterangan ? emp.keterangan : '-'}</span>
                       )}
                     </div>
                   </td>
@@ -537,17 +570,43 @@ export default function App() {
                       ) : (
                         <Badge label={emp.evidence_status} />
                       )}
-                      {emp.evidence_files.length ? (
-                        <div style={{ display: 'grid', gap: 6 }}>
-                          {emp.evidence_files.map((f) => (
-                            <a key={f.id} className="link" href={f.urlPath} target="_blank" rel="noreferrer">
-                              {f.originalName}
-                            </a>
-                          ))}
+                      <div className="noteBlock">
+                        {session?.role === 'admin' ? (
+                          <input
+                            className="input"
+                            placeholder="Keterangan (jika ada kesalahan)"
+                            value={drafts[emp.id]?.keterangan ?? emp.keterangan ?? ''}
+                            onChange={(e) =>
+                              setDrafts((prev) => ({
+                                ...prev,
+                                [emp.id]: { ...(prev[emp.id] ?? ({} as Draft)), keterangan: e.target.value }
+                              }))
+                            }
+                          />
+                        ) : (
+                          <div className="muted">Keterangan: {emp.keterangan ? emp.keterangan : '-'}</div>
+                        )}
+
+                        <div className="row" style={{ justifyContent: 'space-between' }}>
+                          {emp.evidence_files?.[0]?.urlPath ? (
+                            <EvidenceChip url={emp.evidence_files[0].urlPath} />
+                          ) : (
+                            <span className="muted">Bukti SS: -</span>
+                          )}
+                          {session?.role === 'admin' ? (
+                            <div className="row">
+                              <button
+                                className="button"
+                                type="button"
+                                onClick={() => fileInputs.current[emp.id]?.click()}
+                                disabled={rowBusy[emp.id]}
+                              >
+                                {rowBusy[emp.id] ? 'Upload...' : emp.evidence_files.length ? 'Ganti Bukti' : 'Upload Bukti'}
+                              </button>
+                            </div>
+                          ) : null}
                         </div>
-                      ) : (
-                        <span className="muted">Belum ada file</span>
-                      )}
+                      </div>
                       {session?.role === 'admin' ? (
                         <div className="row">
                           <input
@@ -572,14 +631,6 @@ export default function App() {
                               }
                             }}
                           />
-                          <button
-                            className="button"
-                            type="button"
-                            onClick={() => fileInputs.current[emp.id]?.click()}
-                            disabled={rowBusy[emp.id]}
-                          >
-                            {rowBusy[emp.id] ? 'Upload...' : emp.evidence_files.length ? 'Ganti Bukti' : 'Upload Bukti'}
-                          </button>
                         </div>
                       ) : null}
                     </div>
