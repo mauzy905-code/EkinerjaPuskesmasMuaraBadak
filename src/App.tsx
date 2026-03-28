@@ -26,6 +26,14 @@ function Badge({ label }: { label: string }) {
   )
 }
 
+type ProgresFilter =
+  | 'all'
+  | 'all_belum'
+  | 'ra_sudah_lr_belum'
+  | 'ra_lr_sudah_bukti_belum'
+  | 'ra_lr_sudah_bukti_belum_lengkap'
+  | 'ra_lr_sudah_bukti_sudah_lengkap'
+
 type Draft = {
   name: string
   plan_status: PlanStatus
@@ -148,6 +156,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [employees, setEmployees] = useState<Employee[]>([])
   const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<ProgresFilter>('all')
   const [busy, setBusy] = useState(false)
   const [saveBusy, setSaveBusy] = useState(false)
   const [resetBusy, setResetBusy] = useState(false)
@@ -335,9 +344,27 @@ export default function App() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return employees
-    return employees.filter((e) => e.name.toLowerCase().includes(q))
-  }, [employees, query])
+    const base = q ? employees.filter((e) => e.name.toLowerCase().includes(q)) : employees
+    if (filter === 'all') return base
+    return base.filter((e) => {
+      if (filter === 'all_belum') {
+        return e.plan_status === 'Belum' && e.realization_status === 'Belum' && e.evidence_status === 'Belum'
+      }
+      if (filter === 'ra_sudah_lr_belum') {
+        return e.plan_status === 'Sudah' && e.realization_status === 'Belum'
+      }
+      if (filter === 'ra_lr_sudah_bukti_belum') {
+        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Belum'
+      }
+      if (filter === 'ra_lr_sudah_bukti_belum_lengkap') {
+        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Belum Lengkap'
+      }
+      if (filter === 'ra_lr_sudah_bukti_sudah_lengkap') {
+        return e.plan_status === 'Sudah' && e.realization_status === 'Sudah' && e.evidence_status === 'Sudah Lengkap'
+      }
+      return true
+    })
+  }, [employees, query, filter])
 
   return (
     <div className="container">
@@ -450,6 +477,51 @@ export default function App() {
         </div>
 
         {error ? <div className="error" style={{ margin: 14 }}>{error}</div> : null}
+
+        {!isAdmin ? (
+          <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
+            <div className="row">
+              <button className={`button pill ${filter === 'all' ? 'active' : ''}`} type="button" onClick={() => setFilter('all')}>
+                Semua
+              </button>
+              <button
+                className={`button pill ${filter === 'all_belum' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setFilter('all_belum')}
+              >
+                Semua Belum
+              </button>
+              <button
+                className={`button pill ${filter === 'ra_sudah_lr_belum' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setFilter('ra_sudah_lr_belum')}
+              >
+                RA Sudah, LR Belum
+              </button>
+              <button
+                className={`button pill ${filter === 'ra_lr_sudah_bukti_belum' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setFilter('ra_lr_sudah_bukti_belum')}
+              >
+                RA+LR Sudah, Bukti Belum
+              </button>
+              <button
+                className={`button pill ${filter === 'ra_lr_sudah_bukti_belum_lengkap' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setFilter('ra_lr_sudah_bukti_belum_lengkap')}
+              >
+                RA+LR Sudah, Bukti Belum Lengkap
+              </button>
+              <button
+                className={`button pill ${filter === 'ra_lr_sudah_bukti_sudah_lengkap' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setFilter('ra_lr_sudah_bukti_sudah_lengkap')}
+              >
+                RA+LR Sudah, Bukti Sudah Lengkap
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="tableWrap">
           <table>
