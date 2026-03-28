@@ -4,9 +4,9 @@
 create table if not exists employees (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  plan_status text not null default 'Belum',
-  realization_status text not null default 'Belum',
-  evidence_status text not null default 'Belum',
+  plan_status text not null default 'Kosong',
+  realization_status text not null default 'Kosong',
+  evidence_status text not null default 'Kosong',
   realization_link text,
   keterangan text,
   evidence_files jsonb not null default '[]'::jsonb,
@@ -15,6 +15,19 @@ create table if not exists employees (
 );
 
 alter table employees add column if not exists keterangan text;
+
+alter table employees alter column plan_status set default 'Kosong';
+alter table employees alter column realization_status set default 'Kosong';
+alter table employees alter column evidence_status set default 'Kosong';
+
+update employees set plan_status = 'Kosong' where plan_status = 'Belum';
+update employees set plan_status = 'Selesai' where plan_status = 'Sudah';
+
+update employees set realization_status = 'Kosong' where realization_status = 'Belum';
+update employees set realization_status = 'Selesai' where realization_status = 'Sudah';
+
+update employees set evidence_status = 'Kosong' where evidence_status = 'Belum';
+update employees set evidence_status = 'Selesai' where evidence_status = 'Sudah Lengkap';
 
 -- Mengaktifkan RLS (Row Level Security)
 alter table employees enable row level security;
@@ -57,6 +70,6 @@ create policy "Admin delete evidences"
 
 -- 4. Opsional: Data dummy awal
 insert into employees (name, plan_status) values 
-('Contoh Pegawai 1', 'Belum'),
-('Contoh Pegawai 2', 'Sudah')
+('Contoh Pegawai 1', 'Kosong'),
+('Contoh Pegawai 2', 'Selesai')
 on conflict do nothing;
