@@ -34,6 +34,33 @@ type ProgresFilter =
   | 'ra_lr_sudah_bukti_belum_lengkap'
   | 'ra_lr_sudah_bukti_sudah_lengkap'
 
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 7h14" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M5 12h14" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M5 17h14" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+const filterItems: Array<{ key: ProgresFilter; label: string; className: string }> = [
+  { key: 'all', label: 'Semua', className: 'pill-all' },
+  { key: 'all_belum', label: 'Semua Belum', className: 'pill-all_belum' },
+  { key: 'ra_sudah_lr_belum', label: 'RA Sudah, LR Belum', className: 'pill-ra_sudah_lr_belum' },
+  { key: 'ra_lr_sudah_bukti_belum', label: 'RA+LR Sudah, Bukti Belum', className: 'pill-ra_lr_sudah_bukti_belum' },
+  {
+    key: 'ra_lr_sudah_bukti_belum_lengkap',
+    label: 'RA+LR Sudah, Bukti Belum Lengkap',
+    className: 'pill-ra_lr_sudah_bukti_belum_lengkap'
+  },
+  {
+    key: 'ra_lr_sudah_bukti_sudah_lengkap',
+    label: 'RA+LR Sudah, Bukti Sudah Lengkap',
+    className: 'pill-ra_lr_sudah_bukti_sudah_lengkap'
+  }
+]
+
 type Draft = {
   name: string
   plan_status: PlanStatus
@@ -157,6 +184,7 @@ export default function App() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<ProgresFilter>('all')
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saveBusy, setSaveBusy] = useState(false)
   const [resetBusy, setResetBusy] = useState(false)
@@ -366,6 +394,15 @@ export default function App() {
     })
   }, [employees, query, filter])
 
+  useEffect(() => {
+    if (!filterMenuOpen) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setFilterMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [filterMenuOpen])
+
   return (
     <div className="container">
       <div className="topbar">
@@ -480,45 +517,45 @@ export default function App() {
 
         {!isAdmin ? (
           <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
-            <div className="row">
-              <button className={`button pill pill-all ${filter === 'all' ? 'active' : ''}`} type="button" onClick={() => setFilter('all')}>
-                Semua
-              </button>
-              <button
-                className={`button pill pill-all_belum ${filter === 'all_belum' ? 'active' : ''}`}
-                type="button"
-                onClick={() => setFilter('all_belum')}
-              >
-                Semua Belum
-              </button>
-              <button
-                className={`button pill pill-ra_sudah_lr_belum ${filter === 'ra_sudah_lr_belum' ? 'active' : ''}`}
-                type="button"
-                onClick={() => setFilter('ra_sudah_lr_belum')}
-              >
-                RA Sudah, LR Belum
-              </button>
-              <button
-                className={`button pill pill-ra_lr_sudah_bukti_belum ${filter === 'ra_lr_sudah_bukti_belum' ? 'active' : ''}`}
-                type="button"
-                onClick={() => setFilter('ra_lr_sudah_bukti_belum')}
-              >
-                Bukti Dukung Belum
-              </button>
-              <button
-                className={`button pill pill-ra_lr_sudah_bukti_belum_lengkap ${filter === 'ra_lr_sudah_bukti_belum_lengkap' ? 'active' : ''}`}
-                type="button"
-                onClick={() => setFilter('ra_lr_sudah_bukti_belum_lengkap')}
-              >
-                Bukti Dukung Belum Lengkap
-              </button>
-              <button
-                className={`button pill pill-ra_lr_sudah_bukti_sudah_lengkap ${filter === 'ra_lr_sudah_bukti_sudah_lengkap' ? 'active' : ''}`}
-                type="button"
-                onClick={() => setFilter('ra_lr_sudah_bukti_sudah_lengkap')}
-              >
-                Bukti Dukung Sudah Lengkap
-              </button>
+            <div className="row" style={{ justifyContent: 'space-between', width: '100%' }}>
+              <div className="row">
+                <span className="muted">Filter:</span>
+                <span className="badge">{filterItems.find((i) => i.key === filter)?.label ?? 'Semua'}</span>
+              </div>
+              <div className="dropdown">
+                <button
+                  className="iconButton"
+                  type="button"
+                  title="Filter"
+                  onClick={() => setFilterMenuOpen((v) => !v)}
+                >
+                  <MenuIcon />
+                </button>
+                {filterMenuOpen ? (
+                  <div
+                    className="dropdownBackdrop"
+                    onClick={(e) => {
+                      if (e.currentTarget === e.target) setFilterMenuOpen(false)
+                    }}
+                  >
+                    <div className="dropdownMenu">
+                      {filterItems.map((it) => (
+                        <button
+                          key={it.key}
+                          type="button"
+                          className={`button pill ${it.className} ${filter === it.key ? 'active' : ''}`}
+                          onClick={() => {
+                            setFilter(it.key)
+                            setFilterMenuOpen(false)
+                          }}
+                        >
+                          {it.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         ) : null}
