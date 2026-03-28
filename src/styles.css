@@ -327,6 +327,93 @@ tbody tr:hover td {
   background: rgba(255, 255, 255, 0.045);
 }
 
+@media (max-width: 760px) {
+  .tableWrap {
+    overflow-x: visible;
+  }
+
+  table {
+    min-width: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  tbody tr {
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  tbody td {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  tbody tr:nth-child(even) td {
+    background: transparent;
+  }
+
+  tbody tr:hover td {
+    background: transparent;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    min-width: 120px;
+    padding-top: 2px;
+  }
+
+  tbody td[data-nolabel='true']::before {
+    content: '';
+    display: none;
+  }
+
+  td.cellName {
+    display: block;
+    padding: 14px 12px;
+  }
+
+  td.cellName > .input {
+    width: 100% !important;
+  }
+
+  td.cellName .muted {
+    margin-top: 6px;
+  }
+
+  tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  .badge {
+    max-width: 100%;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+}
+
 .muted {
   color: var(--muted);
   font-size: 12px;
