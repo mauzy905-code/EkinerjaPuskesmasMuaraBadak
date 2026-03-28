@@ -461,6 +461,7 @@ export default function App() {
       <div className="panel">
         <div className="panelHeader">
           <div className="row">
+            <span className="tableTitle">Tabel Monitoring E-Kinerja</span>
             <input
               className="input"
               placeholder="Cari nama pegawai..."
