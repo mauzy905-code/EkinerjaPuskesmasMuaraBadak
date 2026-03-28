@@ -343,7 +343,7 @@ export default function App() {
     <div className="container">
       <div className="topbar">
         <div className="brand">
-          <h1>Monitoring Progres Pegawai</h1>
+          <h1>Monitoring E-Kinerja Puskesmas Muara Badak</h1>
           <div className="subtitle">
             Hak akses: <RoleChip role={isAdmin ? 'admin' : 'publik'} />
           </div>
@@ -543,7 +543,7 @@ export default function App() {
                           Buka link realisasi
                         </a>
                       ) : (
-                        <span className="muted">Keterangan: {emp.keterangan ? emp.keterangan : '-'}</span>
+                        <span className="muted">Belum ada link</span>
                       )}
                     </div>
                   </td>
