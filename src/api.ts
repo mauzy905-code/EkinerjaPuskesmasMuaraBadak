@@ -6,6 +6,27 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
+function normalizeEmployee(row: any): Employee {
+  const plan = row?.plan_status
+  const realization = row?.realization_status
+  const evidence = row?.evidence_status
+
+  const plan_status = plan === 'Belum' ? 'Kosong' : plan === 'Sudah' ? 'Selesai' : plan
+  const realization_status = realization === 'Belum' ? 'Kosong' : realization === 'Sudah' ? 'Selesai' : realization
+  const evidence_status =
+    evidence === 'Belum' ? 'Kosong' : evidence === 'Sudah Lengkap' ? 'Selesai' : evidence
+
+  return {
+    ...row,
+    plan_status,
+    realization_status,
+    evidence_status,
+    realization_link: row?.realization_link ?? null,
+    keterangan: row?.keterangan ?? null,
+    evidence_files: Array.isArray(row?.evidence_files) ? row.evidence_files : []
+  } as Employee
+}
+
 export async function login(username: string, password: string): Promise<Session> {
   // Dalam skenario ini, kita anggap semua login menggunakan email di Supabase Auth
   // Jadi 'admin' diubah menjadi 'admin@example.com' misalnya, saat daftar di dashboard
@@ -36,7 +57,7 @@ export async function fetchEmployees(): Promise<Employee[]> {
     .order('created_at', { ascending: false })
     
   if (error) throw error
-  return data as Employee[]
+  return (data || []).map(normalizeEmployee)
 }
 
 export async function fetchEmployeesPublic(): Promise<Employee[]> {
@@ -46,18 +67,28 @@ export async function fetchEmployeesPublic(): Promise<Employee[]> {
     .order('created_at', { ascending: false })
     
   if (error) throw error
-  return data as Employee[]
+  return (data || []).map(normalizeEmployee)
 }
 
 export async function createEmployee(name: string): Promise<Employee> {
   const { data, error } = await supabase
     .from('employees')
-    .insert([{ name }])
+    .insert([
+      {
+        name,
+        plan_status: 'Kosong',
+        realization_status: 'Kosong',
+        evidence_status: 'Kosong',
+        realization_link: null,
+        keterangan: null,
+        evidence_files: []
+      }
+    ])
     .select()
     .single()
     
   if (error) throw error
-  return data as Employee
+  return normalizeEmployee(data)
 }
 
 export async function updateEmployee(id: string, patch: Partial<Employee>): Promise<Employee> {
@@ -72,7 +103,7 @@ export async function updateEmployee(id: string, patch: Partial<Employee>): Prom
     .single()
     
   if (error) throw error
-  return data as Employee
+  return normalizeEmployee(data)
 }
 
 export async function deleteEmployee(id: string): Promise<void> {
@@ -143,7 +174,8 @@ export async function uploadEvidence(
   const files = mode === 'append' ? [newFile, ...prevFiles] : [newFile]
   
   let newStatus = current.evidence_status
-  if (newStatus === 'Belum') newStatus = 'Belum Lengkap'
+  if (newStatus === 'Kosong' || newStatus === 'Belum') newStatus = 'Belum Lengkap'
+  if (newStatus === 'Sudah Lengkap') newStatus = 'Selesai'
   
   const { data: updated, error: updateErr } = await supabase
     .from('employees')
@@ -157,6 +189,6 @@ export async function uploadEvidence(
     .single()
     
   if (updateErr) throw updateErr
-  return updated as Employee
+  return normalizeEmployee(updated)
 }
 
