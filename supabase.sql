@@ -8,10 +8,13 @@ create table if not exists employees (
   realization_status text not null default 'Belum',
   evidence_status text not null default 'Belum',
   realization_link text,
+  keterangan text,
   evidence_files jsonb not null default '[]'::jsonb,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
+
+alter table employees add column if not exists keterangan text;
 
 -- Mengaktifkan RLS (Row Level Security)
 alter table employees enable row level security;
