@@ -312,18 +312,11 @@ thead th {
   backdrop-filter: blur(8px);
 }
 
-thead th:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-}
 
 tbody td {
   padding: 12px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   vertical-align: top;
-}
-
-tbody td:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 tbody tr:nth-child(even) td {
