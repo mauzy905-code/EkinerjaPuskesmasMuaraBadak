@@ -481,39 +481,39 @@ export default function App() {
         {!isAdmin ? (
           <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
             <div className="row">
-              <button className={`button pill ${filter === 'all' ? 'active' : ''}`} type="button" onClick={() => setFilter('all')}>
+              <button className={`button pill pill-all ${filter === 'all' ? 'active' : ''}`} type="button" onClick={() => setFilter('all')}>
                 Semua
               </button>
               <button
-                className={`button pill ${filter === 'all_belum' ? 'active' : ''}`}
+                className={`button pill pill-all_belum ${filter === 'all_belum' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('all_belum')}
               >
                 Semua Belum
               </button>
               <button
-                className={`button pill ${filter === 'ra_sudah_lr_belum' ? 'active' : ''}`}
+                className={`button pill pill-ra_sudah_lr_belum ${filter === 'ra_sudah_lr_belum' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_sudah_lr_belum')}
               >
                 RA Sudah, LR Belum
               </button>
               <button
-                className={`button pill ${filter === 'ra_lr_sudah_bukti_belum' ? 'active' : ''}`}
+                className={`button pill pill-ra_lr_sudah_bukti_belum ${filter === 'ra_lr_sudah_bukti_belum' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_belum')}
               >
                 RA+LR Sudah, Bukti Belum
               </button>
               <button
-                className={`button pill ${filter === 'ra_lr_sudah_bukti_belum_lengkap' ? 'active' : ''}`}
+                className={`button pill pill-ra_lr_sudah_bukti_belum_lengkap ${filter === 'ra_lr_sudah_bukti_belum_lengkap' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_belum_lengkap')}
               >
                 RA+LR Sudah, Bukti Belum Lengkap
               </button>
               <button
-                className={`button pill ${filter === 'ra_lr_sudah_bukti_sudah_lengkap' ? 'active' : ''}`}
+                className={`button pill pill-ra_lr_sudah_bukti_sudah_lengkap ${filter === 'ra_lr_sudah_bukti_sudah_lengkap' ? 'active' : ''}`}
                 type="button"
                 onClick={() => setFilter('ra_lr_sudah_bukti_sudah_lengkap')}
               >
