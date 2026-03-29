@@ -190,6 +190,7 @@
     const [query, setQuery] = useState('')
     const [filter, setFilter] = useState<ProgresFilter>('all')
     const [filterMenuOpen, setFilterMenuOpen] = useState(false)
+  const [pasteTargetId, setPasteTargetId] = useState<string | null>(null)
     const [busy, setBusy] = useState(false)
     const [saveBusy, setSaveBusy] = useState(false)
     const [resetBusy, setResetBusy] = useState(false)
@@ -199,6 +200,7 @@
     const [newName, setNewName] = useState('')
     const [adminLoginOpen, setAdminLoginOpen] = useState(false)
     const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
+  const pasteCatcherRef = useRef<HTMLTextAreaElement | null>(null)
     const isAdmin = session?.role === 'admin'
 
     function isDirty(emp: Employee, d: Draft | undefined) {
@@ -417,8 +419,49 @@
       return () => window.removeEventListener('keydown', onKeyDown)
     }, [filterMenuOpen])
 
+  useEffect(() => {
+    if (!pasteTargetId) return
+    pasteCatcherRef.current?.focus()
+  }, [pasteTargetId])
+
+  useEffect(() => {
+    if (!pasteTargetId) return
+    if (!isAdmin) return
+    function onPaste(e: ClipboardEvent) {
+      if (!pasteTargetId) return
+      const items = e.clipboardData?.items
+      if (!items?.length) return
+      const imageItem = Array.from(items).find((it) => it.type.startsWith('image/'))
+      if (!imageItem) return
+      const file = imageItem.getAsFile()
+      if (!file) return
+      e.preventDefault()
+
+      const ext = file.type.split('/')[1] || 'png'
+      const namedFile = new File([file], `bukti-${Date.now()}.${ext}`, { type: file.type })
+      const id = pasteTargetId
+
+      setRowBusy((prev) => ({ ...prev, [id]: true }))
+      setError(null)
+      uploadEvidence(id, namedFile, { mode: 'replace' })
+        .then((updated) => {
+          setEmployees((prev) => prev.map((p) => (p.id === id ? updated : p)))
+          setPasteTargetId(null)
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : 'Upload gagal')
+        })
+        .finally(() => {
+          setRowBusy((prev) => ({ ...prev, [id]: false }))
+        })
+    }
+    window.addEventListener('paste', onPaste as any)
+    return () => window.removeEventListener('paste', onPaste as any)
+  }, [pasteTargetId, isAdmin])
+
     return (
       <div className="container">
+      <textarea ref={pasteCatcherRef} className="pasteCatcher" aria-hidden="true" tabIndex={-1} />
         <div className="topbar">
           <div className="brand">
             <h1>Monitoring E-Kinerja Puskesmas Muara Badak</h1>
@@ -718,6 +761,14 @@
                                 >
                                   {rowBusy[emp.id] ? 'Upload...' : emp.evidence_files.length ? 'Ganti Bukti' : 'Upload Bukti'}
                                 </button>
+                              <button
+                                className="button"
+                                type="button"
+                                disabled={rowBusy[emp.id]}
+                                onClick={() => setPasteTargetId((cur) => (cur === emp.id ? null : emp.id))}
+                              >
+                                {pasteTargetId === emp.id ? 'Siap Tempel' : 'Tempel Bukti'}
+                              </button>
                               {emp.evidence_files.length ? (
                                 <button
                                   className="button danger"
@@ -744,6 +795,9 @@
                               </div>
                             ) : null}
                           </div>
+                        {session?.role === 'admin' && pasteTargetId === emp.id ? (
+                          <div className="muted">Tekan Ctrl+V untuk menempel hasil screenshot</div>
+                        ) : null}
                         </div>
                         {session?.role === 'admin' ? (
                           <div className="row">
