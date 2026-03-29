@@ -173,15 +173,10 @@ export async function uploadEvidence(
   const prevFiles = Array.isArray(current.evidence_files) ? current.evidence_files : []
   const files = mode === 'append' ? [newFile, ...prevFiles] : [newFile]
   
-  let newStatus = current.evidence_status
-  if (newStatus === 'Kosong' || newStatus === 'Belum') newStatus = 'Belum Lengkap'
-  if (newStatus === 'Sudah Lengkap') newStatus = 'Selesai'
-  
   const { data: updated, error: updateErr } = await supabase
     .from('employees')
     .update({ 
       evidence_files: files,
-      evidence_status: newStatus,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
