@@ -192,3 +192,35 @@ export async function uploadEvidence(
   return normalizeEmployee(updated)
 }
 
+export async function clearEvidence(id: string): Promise<Employee> {
+  const { data: current, error: fetchErr } = await supabase
+    .from('employees')
+    .select('evidence_files')
+    .eq('id', id)
+    .single()
+
+  if (fetchErr) throw fetchErr
+
+  const prevFiles = Array.isArray(current.evidence_files) ? current.evidence_files : []
+  const paths = prevFiles.map((f: any) => f?.storagePath).filter((p: any) => typeof p === 'string' && p.length)
+  if (paths.length) {
+    await supabase.storage
+      .from('evidences')
+      .remove(paths)
+      .catch(() => null)
+  }
+
+  const { data: updated, error: updateErr } = await supabase
+    .from('employees')
+    .update({
+      evidence_files: [],
+      evidence_status: 'Kosong',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (updateErr) throw updateErr
+  return normalizeEmployee(updated)
+}
