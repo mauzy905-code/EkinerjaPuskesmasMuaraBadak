@@ -2,6 +2,7 @@
   import type { Employee, EvidenceStatus, PlanStatus, RealizationStatus, Role, Session } from './types'
   import {
     createEmployee,
+  clearEvidence,
     deleteEmployee,
     fetchEmployeesPublic,
     login,
@@ -717,6 +718,29 @@
                                 >
                                   {rowBusy[emp.id] ? 'Upload...' : emp.evidence_files.length ? 'Ganti Bukti' : 'Upload Bukti'}
                                 </button>
+                              {emp.evidence_files.length ? (
+                                <button
+                                  className="button danger"
+                                  type="button"
+                                  disabled={rowBusy[emp.id]}
+                                  onClick={async () => {
+                                    const ok = window.confirm('Hapus Bukti SS untuk pegawai ini?')
+                                    if (!ok) return
+                                    setRowBusy((prev) => ({ ...prev, [emp.id]: true }))
+                                    setError(null)
+                                    try {
+                                      const updated = await clearEvidence(emp.id)
+                                      setEmployees((prev) => prev.map((p) => (p.id === emp.id ? updated : p)))
+                                    } catch (err) {
+                                      setError(err instanceof Error ? err.message : 'Gagal menghapus bukti')
+                                    } finally {
+                                      setRowBusy((prev) => ({ ...prev, [emp.id]: false }))
+                                    }
+                                  }}
+                                >
+                                  Hapus Bukti
+                                </button>
+                              ) : null}
                               </div>
                             ) : null}
                           </div>
