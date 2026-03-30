@@ -203,6 +203,7 @@
     const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
     const pasteCatcherRef = useRef<HTMLTextAreaElement | null>(null)
     const adminPresenceChannelRef = useRef<any>(null)
+    const adminPresenceComputeRef = useRef<(() => void) | null>(null)
     const isAdmin = session?.role === 'admin'
 
     function isDirty(emp: Employee, d: Draft | undefined) {
@@ -332,6 +333,7 @@
         const anyAdmin = Object.values(state).some((arr) => Array.isArray(arr) && arr.some((m) => m?.role === 'admin'))
         setAdminActive(anyAdmin)
       }
+      adminPresenceComputeRef.current = compute
 
       channel.on('presence', { event: 'sync' }, compute)
       channel.on('presence', { event: 'join' }, compute)
@@ -339,7 +341,6 @@
 
       channel.subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') return
-        await channel.track({ role: 'public', at: new Date().toISOString() })
         compute()
       })
 
@@ -350,9 +351,27 @@
 
     useEffect(() => {
       const channel = adminPresenceChannelRef.current
+      const compute = adminPresenceComputeRef.current
       if (!channel) return
-      const role = isAdmin ? 'admin' : 'public'
-      channel.track({ role, at: new Date().toISOString() }).catch(() => null)
+      if (isAdmin) {
+        channel
+          .track({ role: 'admin', at: new Date().toISOString() })
+          .then(() => compute?.())
+          .catch(() => null)
+        return
+      }
+      const anyChannel = channel as any
+      if (typeof anyChannel.untrack === 'function') {
+        anyChannel
+          .untrack()
+          .then(() => compute?.())
+          .catch(() => null)
+      } else {
+        channel
+          .track({ role: 'public', at: new Date().toISOString() })
+          .then(() => compute?.())
+          .catch(() => null)
+      }
     }, [isAdmin])
 
     useEffect(() => {
@@ -523,10 +542,17 @@
               </button>
             ) : (
               <>
-                <span className={`adminPresence ${adminActive ? 'active' : 'inactive'}`}>
-                  {adminActive ? <span className="spinner" aria-hidden="true" /> : null}
-                  <span>{adminActive ? 'Admin Sedang Memeriksa' : 'Admin Tidak Aktif'}</span>
-                </span>
+                <div className="adminPresenceBlock">
+                  <span className={`adminPresence ${adminActive ? 'active' : 'inactive'}`}>
+                    {adminActive ? <span className="spinner" aria-hidden="true" /> : null}
+                    <span>{adminActive ? 'Admin Sedang Memeriksa' : 'Admin Tidak Aktif'}</span>
+                  </span>
+                  <div className="adminPresenceHint">
+                    {adminActive
+                      ? 'Ketidaksesuaian progres akan diperbarui setelah proses tinjauan manual selesai. Cek secara berkala.'
+                      : 'Jika ada ketidaksesuaian status progres, tunggu sampai admin melakukan pemeriksaan kembali.'}
+                  </div>
+                </div>
                 <button className="iconButton" type="button" onClick={() => setAdminLoginOpen(true)} title="Admin">
                   <AdminIcon />
                 </button>
