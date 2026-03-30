@@ -18,6 +18,10 @@
     return 'bad'
   }
 
+function statusSelectClass(status: PlanStatus | RealizationStatus | EvidenceStatus) {
+  return `select statusSelect status-${statusDot(status)}`
+}
+
   function Badge({ label }: { label: string }) {
     return (
       <span className="badge">
@@ -725,7 +729,7 @@
                     <td data-label="Rencana Aksi">
                       {session?.role === 'admin' ? (
                         <select
-                          className="select"
+                          className={statusSelectClass((drafts[emp.id]?.plan_status ?? emp.plan_status) as any)}
                           value={drafts[emp.id]?.plan_status ?? emp.plan_status}
                           onChange={(e) =>
                             setDrafts((prev) => ({
@@ -745,7 +749,7 @@
                       <div style={{ display: 'grid', gap: 8 }}>
                         {session?.role === 'admin' ? (
                           <select
-                            className="select"
+                            className={statusSelectClass((drafts[emp.id]?.realization_status ?? emp.realization_status) as any)}
                             value={drafts[emp.id]?.realization_status ?? emp.realization_status}
                             onChange={(e) =>
                               setDrafts((prev) => ({
@@ -777,7 +781,7 @@
                       <div style={{ display: 'grid', gap: 8 }}>
                         {session?.role === 'admin' ? (
                           <select
-                            className="select"
+                            className={statusSelectClass((drafts[emp.id]?.evidence_status ?? emp.evidence_status) as any)}
                             value={drafts[emp.id]?.evidence_status ?? emp.evidence_status}
                             onChange={(e) =>
                               setDrafts((prev) => ({
