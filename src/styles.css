@@ -263,6 +263,43 @@
     white-space: nowrap;
   }
 
+.adminPresence {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.adminPresence.active {
+  border-color: rgba(24, 201, 100, 0.35);
+  color: rgba(167, 243, 208, 0.95);
+}
+
+.adminPresence.inactive {
+  border-color: rgba(243, 18, 96, 0.35);
+  color: rgba(251, 113, 133, 0.95);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
   .dot {
     width: 8px;
     height: 8px;
