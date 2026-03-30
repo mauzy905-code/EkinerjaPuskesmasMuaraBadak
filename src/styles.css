@@ -285,6 +285,21 @@
   color: rgba(251, 113, 133, 0.95);
 }
 
+.adminPresenceBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.adminPresenceHint {
+  max-width: 320px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
 .spinner {
   width: 14px;
   height: 14px;
