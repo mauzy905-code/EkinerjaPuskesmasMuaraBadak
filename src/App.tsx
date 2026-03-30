@@ -18,8 +18,24 @@
     return 'bad'
   }
 
-function statusSelectClass(status: PlanStatus | RealizationStatus | EvidenceStatus) {
-  return `select statusSelect status-${statusDot(status)}`
+function statusControlClass(status: PlanStatus | RealizationStatus | EvidenceStatus) {
+  return `statusControl status-${statusDot(status)}`
+}
+
+function nextPlanStatus(v: PlanStatus): PlanStatus {
+  return v === 'Kosong' ? 'Selesai' : 'Kosong'
+}
+
+function nextRealizationStatus(v: RealizationStatus): RealizationStatus {
+  if (v === 'Kosong') return 'Tidak Lengkap'
+  if (v === 'Tidak Lengkap') return 'Selesai'
+  return 'Kosong'
+}
+
+function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
+  if (v === 'Kosong') return 'Belum Lengkap'
+  if (v === 'Belum Lengkap') return 'Selesai'
+  return 'Kosong'
 }
 
   function Badge({ label }: { label: string }) {
@@ -728,19 +744,20 @@ function statusSelectClass(status: PlanStatus | RealizationStatus | EvidenceStat
                     </td>
                     <td data-label="Rencana Aksi">
                       {session?.role === 'admin' ? (
-                        <select
-                          className={statusSelectClass((drafts[emp.id]?.plan_status ?? emp.plan_status) as any)}
-                          value={drafts[emp.id]?.plan_status ?? emp.plan_status}
-                          onChange={(e) =>
+                        <button
+                          type="button"
+                          className={statusControlClass((drafts[emp.id]?.plan_status ?? emp.plan_status) as any)}
+                          onClick={() => {
+                            const current = (drafts[emp.id]?.plan_status ?? emp.plan_status) as PlanStatus
+                            const next = nextPlanStatus(current)
                             setDrafts((prev) => ({
                               ...prev,
-                              [emp.id]: { ...(prev[emp.id] ?? ({} as Draft)), plan_status: e.target.value as PlanStatus }
+                              [emp.id]: { ...(prev[emp.id] ?? ({} as Draft)), plan_status: next }
                             }))
-                          }
+                          }}
                         >
-                          <option value="Kosong">Kosong</option>
-                          <option value="Selesai">Selesai</option>
-                        </select>
+                          {drafts[emp.id]?.plan_status ?? emp.plan_status}
+                        </button>
                       ) : (
                         <Badge label={emp.plan_status} />
                       )}
@@ -748,23 +765,23 @@ function statusSelectClass(status: PlanStatus | RealizationStatus | EvidenceStat
                     <td data-label="Link & Realisasi">
                       <div style={{ display: 'grid', gap: 8 }}>
                         {session?.role === 'admin' ? (
-                          <select
-                            className={statusSelectClass((drafts[emp.id]?.realization_status ?? emp.realization_status) as any)}
-                            value={drafts[emp.id]?.realization_status ?? emp.realization_status}
-                            onChange={(e) =>
+                          <button
+                            type="button"
+                            className={statusControlClass((drafts[emp.id]?.realization_status ?? emp.realization_status) as any)}
+                            onClick={() => {
+                              const current = (drafts[emp.id]?.realization_status ?? emp.realization_status) as RealizationStatus
+                              const next = nextRealizationStatus(current)
                               setDrafts((prev) => ({
                                 ...prev,
                                 [emp.id]: {
                                   ...(prev[emp.id] ?? ({} as Draft)),
-                                  realization_status: e.target.value as RealizationStatus
+                                  realization_status: next
                                 }
                               }))
-                            }
+                            }}
                           >
-                            <option value="Kosong">Kosong</option>
-                            <option value="Tidak Lengkap">Tidak Lengkap</option>
-                            <option value="Selesai">Selesai</option>
-                          </select>
+                            {drafts[emp.id]?.realization_status ?? emp.realization_status}
+                          </button>
                         ) : (
                           <Badge label={emp.realization_status} />
                         )}
@@ -780,23 +797,23 @@ function statusSelectClass(status: PlanStatus | RealizationStatus | EvidenceStat
                     <td data-label="Bukti Dukung">
                       <div style={{ display: 'grid', gap: 8 }}>
                         {session?.role === 'admin' ? (
-                          <select
-                            className={statusSelectClass((drafts[emp.id]?.evidence_status ?? emp.evidence_status) as any)}
-                            value={drafts[emp.id]?.evidence_status ?? emp.evidence_status}
-                            onChange={(e) =>
+                          <button
+                            type="button"
+                            className={statusControlClass((drafts[emp.id]?.evidence_status ?? emp.evidence_status) as any)}
+                            onClick={() => {
+                              const current = (drafts[emp.id]?.evidence_status ?? emp.evidence_status) as EvidenceStatus
+                              const next = nextEvidenceStatus(current)
                               setDrafts((prev) => ({
                                 ...prev,
                                 [emp.id]: {
                                   ...(prev[emp.id] ?? ({} as Draft)),
-                                  evidence_status: e.target.value as EvidenceStatus
+                                  evidence_status: next
                                 }
                               }))
-                            }
+                            }}
                           >
-                            <option value="Kosong">Kosong</option>
-                            <option value="Belum Lengkap">Belum Lengkap</option>
-                            <option value="Selesai">Selesai</option>
-                          </select>
+                            {drafts[emp.id]?.evidence_status ?? emp.evidence_status}
+                          </button>
                         ) : (
                           <Badge label={emp.evidence_status} />
                         )}
