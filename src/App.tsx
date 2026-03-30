@@ -190,7 +190,8 @@
     const [query, setQuery] = useState('')
     const [filter, setFilter] = useState<ProgresFilter>('all')
     const [filterMenuOpen, setFilterMenuOpen] = useState(false)
-  const [pasteTargetId, setPasteTargetId] = useState<string | null>(null)
+    const [pasteTargetId, setPasteTargetId] = useState<string | null>(null)
+    const [adminActive, setAdminActive] = useState(false)
     const [busy, setBusy] = useState(false)
     const [saveBusy, setSaveBusy] = useState(false)
     const [resetBusy, setResetBusy] = useState(false)
@@ -200,7 +201,8 @@
     const [newName, setNewName] = useState('')
     const [adminLoginOpen, setAdminLoginOpen] = useState(false)
     const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
-  const pasteCatcherRef = useRef<HTMLTextAreaElement | null>(null)
+    const pasteCatcherRef = useRef<HTMLTextAreaElement | null>(null)
+    const adminPresenceChannelRef = useRef<any>(null)
     const isAdmin = session?.role === 'admin'
 
     function isDirty(emp: Employee, d: Draft | undefined) {
@@ -318,6 +320,40 @@
 
       return () => subscription.unsubscribe()
     }, [])
+
+    useEffect(() => {
+      const channel = supabase.channel('presence:admin-status', {
+        config: { presence: { key: crypto.randomUUID() } }
+      })
+      adminPresenceChannelRef.current = channel
+
+      const compute = () => {
+        const state = channel.presenceState() as Record<string, any[]>
+        const anyAdmin = Object.values(state).some((arr) => Array.isArray(arr) && arr.some((m) => m?.role === 'admin'))
+        setAdminActive(anyAdmin)
+      }
+
+      channel.on('presence', { event: 'sync' }, compute)
+      channel.on('presence', { event: 'join' }, compute)
+      channel.on('presence', { event: 'leave' }, compute)
+
+      channel.subscribe(async (status) => {
+        if (status !== 'SUBSCRIBED') return
+        await channel.track({ role: 'public', at: new Date().toISOString() })
+        compute()
+      })
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    }, [])
+
+    useEffect(() => {
+      const channel = adminPresenceChannelRef.current
+      if (!channel) return
+      const role = isAdmin ? 'admin' : 'public'
+      channel.track({ role, at: new Date().toISOString() }).catch(() => null)
+    }, [isAdmin])
 
     useEffect(() => {
       load()
@@ -486,9 +522,15 @@
                 Logout ({session?.username || 'admin'})
               </button>
             ) : (
-              <button className="iconButton" type="button" onClick={() => setAdminLoginOpen(true)} title="Admin">
-                <AdminIcon />
-              </button>
+              <>
+                <span className={`adminPresence ${adminActive ? 'active' : 'inactive'}`}>
+                  {adminActive ? <span className="spinner" aria-hidden="true" /> : null}
+                  <span>{adminActive ? 'Admin Sedang Memeriksa' : 'Admin Tidak Aktif'}</span>
+                </span>
+                <button className="iconButton" type="button" onClick={() => setAdminLoginOpen(true)} title="Admin">
+                  <AdminIcon />
+                </button>
+              </>
             )}
           </div>
         </div>
