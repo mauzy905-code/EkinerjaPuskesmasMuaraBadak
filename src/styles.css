@@ -102,19 +102,42 @@
     min-height: 40px;
   }
 
-.statusSelect.status-good {
+.statusSelect.status-good,
+.statusControl.status-good {
   background: rgba(24, 201, 100, 0.14);
   border-color: rgba(24, 201, 100, 0.45);
 }
 
-.statusSelect.status-warn {
+.statusSelect.status-warn,
+.statusControl.status-warn {
   background: rgba(245, 165, 36, 0.14);
   border-color: rgba(245, 165, 36, 0.45);
 }
 
-.statusSelect.status-bad {
+.statusSelect.status-bad,
+.statusControl.status-bad {
   background: rgba(243, 18, 96, 0.12);
   border-color: rgba(243, 18, 96, 0.42);
+}
+
+.statusControl {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.statusControl:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.statusControl:active {
+  transform: translateY(1px);
 }
 
   .input::placeholder {
