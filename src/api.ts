@@ -209,7 +209,6 @@ export async function clearEvidence(id: string): Promise<Employee> {
     .from('employees')
     .update({
       evidence_files: [],
-      evidence_status: 'Kosong',
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
