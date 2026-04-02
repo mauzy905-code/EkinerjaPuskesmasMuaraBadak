@@ -455,6 +455,7 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
     const filtered = useMemo(() => {
       const q = query.trim().toLowerCase()
       const base = q ? employees.filter((e) => e.name.toLowerCase().includes(q)) : employees
+      if (isAdmin) return base
       if (filter === 'all') return base
       return base.filter((e) => {
         if (filter === 'all_belum') {
@@ -483,7 +484,7 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
         }
         return true
       })
-    }, [employees, query, filter])
+    }, [employees, query, filter, isAdmin])
 
     useEffect(() => {
       if (!filterMenuOpen) return
