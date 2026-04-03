@@ -376,6 +376,36 @@
     overflow-x: auto;
   }
 
+  .adminRecap {
+    padding: 14px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    gap: 10px;
+  }
+
+  .recapGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .recapItem {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 46px;
+  }
+
+  .recapName {
+    font-weight: 650;
+    letter-spacing: 0.1px;
+  }
+
   .tableTitle {
     font-weight: 800;
     letter-spacing: 0.9px;
@@ -510,6 +540,10 @@
 
     .row {
       flex-wrap: wrap;
+    }
+
+    .recapGrid {
+      grid-template-columns: 1fr;
     }
   }
 
