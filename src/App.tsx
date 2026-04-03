@@ -486,6 +486,16 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
       })
     }, [employees, query, filter, isAdmin])
 
+    const recapSelesai = useMemo(() => {
+      return employees.filter((e) => {
+        const d = drafts[e.id]
+        const plan = (d?.plan_status ?? e.plan_status) as PlanStatus
+        const realization = (d?.realization_status ?? e.realization_status) as RealizationStatus
+        const evidence = (d?.evidence_status ?? e.evidence_status) as EvidenceStatus
+        return plan === 'Selesai' && realization === 'Selesai' && evidence === 'Selesai'
+      })
+    }, [employees, drafts])
+
     useEffect(() => {
       if (!filterMenuOpen) return
       function onKeyDown(e: KeyboardEvent) {
@@ -661,6 +671,29 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
           </div>
 
           {error ? <div className="error" style={{ margin: 14 }}>{error}</div> : null}
+
+          {isAdmin ? (
+            <div className="adminRecap">
+              <div className="row" style={{ justifyContent: 'space-between', width: '100%' }}>
+                <div className="row">
+                  <span className="tableTitle">Rekapan Penilaian</span>
+                  <span className="muted">Selesai Semua: {recapSelesai.length}</span>
+                </div>
+              </div>
+              {recapSelesai.length ? (
+                <div className="recapGrid">
+                  {recapSelesai.map((e) => (
+                    <div key={e.id} className="recapItem">
+                      <div className="recapName">{e.name}</div>
+                      <Badge label="Selesai" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="muted">Belum ada pegawai yang semua progresnya Selesai.</div>
+              )}
+            </div>
+          ) : null}
 
           {!isAdmin ? (
             <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
