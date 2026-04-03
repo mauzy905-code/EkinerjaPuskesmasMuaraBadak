@@ -603,153 +603,165 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
         />
 
         <div className="panel">
-          <div className="panelHeader">
-            <div className="row">
-              <span className="tableTitle">Tabel Monitoring E-Kinerja</span>
-              <input
-                className="input"
-                placeholder="Cari nama pegawai..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                style={{ width: 260 }}
-              />
-              <span className="muted">
-                Menampilkan {filtered.length} dari {employees.length}
-              </span>
-            </div>
-            <div className="row">
-              {session?.role === 'admin' ? (
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault()
-                    const name = newName.trim()
-                    if (!name) return
-                    setError(null)
-                    setBusy(true)
-                    try {
-                      const created = await createEmployee(name)
-                      setEmployees((prev) => [created, ...prev])
-                      setNewName('')
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : 'Gagal menambah pegawai')
-                    } finally {
-                      setBusy(false)
-                    }
-                  }}
-                  className="row"
-                >
-                  <input
-                    className="input"
-                    placeholder="Tambah pegawai (nama)"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    style={{ width: 240 }}
-                  />
-                  <button className="button primary" disabled={busy}>
-                    Tambah
-                  </button>
-                </form>
-              ) : null}
-              {isAdmin ? (
-                <button
-                  className="button primary"
-                  type="button"
-                  onClick={saveAll}
-                  disabled={saveBusy || resetBusy || dirtyCount === 0}
-                >
-                  {saveBusy ? 'Menyimpan...' : `Simpan Semua${dirtyCount ? ` (${dirtyCount})` : ''}`}
-                </button>
-              ) : null}
-              {isAdmin ? (
-                <button className="button danger" type="button" onClick={resetBulanan} disabled={saveBusy || resetBusy}>
-                  {resetBusy ? 'Reset...' : 'Reset Bulanan'}
-                </button>
-              ) : null}
-              <button className="button" onClick={load} disabled={busy}>
-                {busy ? 'Memuat...' : 'Refresh'}
-              </button>
-            </div>
-          </div>
-
-          {error ? <div className="error" style={{ margin: 14 }}>{error}</div> : null}
-
-          {isAdmin ? (
-            <div className="adminRecap">
-              <div className="row" style={{ justifyContent: 'space-between', width: '100%' }}>
+          {isAdmin && recapOpen ? (
+            <>
+              <div className="panelHeader">
                 <div className="row">
                   <span className="tableTitle">Rekapan Penilaian</span>
                   <span className="muted">Selesai Semua: {recapSelesai.length}</span>
                 </div>
-                <button className="button" type="button" onClick={() => setRecapOpen((v) => !v)}>
-                  {recapOpen ? 'Tutup Rekapan' : 'Buka Rekapan'}
-                </button>
-              </div>
-              {recapOpen ? (
-                recapSelesai.length ? (
-                <div className="recapGrid">
-                  {recapSelesai.map((e, idx) => (
-                    <div key={e.id} className="recapItem">
-                      <div className="recapLeft">
-                        <div className="recapNo">{idx + 1}</div>
-                        <div className="recapName">{e.name}</div>
-                      </div>
-                      <Badge label="Selesai" />
-                    </div>
-                  ))}
-                </div>
-                ) : (
-                <div className="muted">Belum ada pegawai yang semua progresnya Selesai.</div>
-                )
-              ) : null}
-            </div>
-          ) : null}
-
-          {!isAdmin ? (
-            <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
-              <div className="row" style={{ justifyContent: 'space-between', width: '100%' }}>
                 <div className="row">
-                  <span className="muted">Filter:</span>
-                  <span className="badge">{filterItems.find((i) => i.key === filter)?.label ?? 'Semua'}</span>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="iconButton"
-                    type="button"
-                    title="Filter"
-                    onClick={() => setFilterMenuOpen((v) => !v)}
-                  >
-                    <MenuIcon />
+                  <button className="button" type="button" onClick={() => setRecapOpen(false)}>
+                    Tutup Rekapan
                   </button>
-                  {filterMenuOpen ? (
-                    <div
-                      className="dropdownBackdrop"
-                      onClick={(e) => {
-                        if (e.currentTarget === e.target) setFilterMenuOpen(false)
-                      }}
-                    >
-                      <div className="dropdownMenu">
-                        {filterItems.map((it) => (
-                          <button
-                            key={it.key}
-                            type="button"
-                            className={`button pill ${it.className} ${filter === it.key ? 'active' : ''}`}
-                            onClick={() => {
-                              setFilter(it.key)
-                              setFilterMenuOpen(false)
-                            }}
-                          >
-                            {it.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
               </div>
-            </div>
-          ) : null}
+              <div className="adminRecap" style={{ borderTop: 'none' }}>
+                {recapSelesai.length ? (
+                  <div className="recapGrid">
+                    {recapSelesai.map((e, idx) => (
+                      <div key={e.id} className="recapItem">
+                        <div className="recapLeft">
+                          <div className="recapNo">{idx + 1}</div>
+                          <div className="recapName">{e.name}</div>
+                        </div>
+                        <Badge label="Selesai" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="muted">Belum ada pegawai yang semua progresnya Selesai.</div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="panelHeader">
+                <div className="row">
+                  <span className="tableTitle">Tabel Monitoring E-Kinerja</span>
+                  <input
+                    className="input"
+                    placeholder="Cari nama pegawai..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    style={{ width: 260 }}
+                  />
+                  <span className="muted">
+                    Menampilkan {filtered.length} dari {employees.length}
+                  </span>
+                </div>
+                <div className="row">
+                  {session?.role === 'admin' ? (
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault()
+                        const name = newName.trim()
+                        if (!name) return
+                        setError(null)
+                        setBusy(true)
+                        try {
+                          const created = await createEmployee(name)
+                          setEmployees((prev) => [created, ...prev])
+                          setNewName('')
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : 'Gagal menambah pegawai')
+                        } finally {
+                          setBusy(false)
+                        }
+                      }}
+                      className="row"
+                    >
+                      <input
+                        className="input"
+                        placeholder="Tambah pegawai (nama)"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        style={{ width: 240 }}
+                      />
+                      <button className="button primary" disabled={busy}>
+                        Tambah
+                      </button>
+                    </form>
+                  ) : null}
+                  {isAdmin ? (
+                    <button className="button" type="button" onClick={() => setRecapOpen(true)}>
+                      Rekapan Penilaian
+                    </button>
+                  ) : null}
+                  {isAdmin ? (
+                    <button
+                      className="button primary"
+                      type="button"
+                      onClick={saveAll}
+                      disabled={saveBusy || resetBusy || dirtyCount === 0}
+                    >
+                      {saveBusy ? 'Menyimpan...' : `Simpan Semua${dirtyCount ? ` (${dirtyCount})` : ''}`}
+                    </button>
+                  ) : null}
+                  {isAdmin ? (
+                    <button
+                      className="button danger"
+                      type="button"
+                      onClick={resetBulanan}
+                      disabled={saveBusy || resetBusy}
+                    >
+                      {resetBusy ? 'Reset...' : 'Reset Bulanan'}
+                    </button>
+                  ) : null}
+                  <button className="button" onClick={load} disabled={busy}>
+                    {busy ? 'Memuat...' : 'Refresh'}
+                  </button>
+                </div>
+              </div>
 
-          <div className="tableWrap">
+              {error ? <div className="error" style={{ margin: 14 }}>{error}</div> : null}
+
+              {!isAdmin ? (
+                <div className="panelHeader" style={{ borderBottom: 'none', paddingTop: 10 }}>
+                  <div className="row" style={{ justifyContent: 'space-between', width: '100%' }}>
+                    <div className="row">
+                      <span className="muted">Filter:</span>
+                      <span className="badge">{filterItems.find((i) => i.key === filter)?.label ?? 'Semua'}</span>
+                    </div>
+                    <div className="dropdown">
+                      <button
+                        className="iconButton"
+                        type="button"
+                        title="Filter"
+                        onClick={() => setFilterMenuOpen((v) => !v)}
+                      >
+                        <MenuIcon />
+                      </button>
+                      {filterMenuOpen ? (
+                        <div
+                          className="dropdownBackdrop"
+                          onClick={(e) => {
+                            if (e.currentTarget === e.target) setFilterMenuOpen(false)
+                          }}
+                        >
+                          <div className="dropdownMenu">
+                            {filterItems.map((it) => (
+                              <button
+                                key={it.key}
+                                type="button"
+                                className={`button pill ${it.className} ${filter === it.key ? 'active' : ''}`}
+                                onClick={() => {
+                                  setFilter(it.key)
+                                  setFilterMenuOpen(false)
+                                }}
+                              >
+                                {it.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="tableWrap">
             <table>
               <thead>
                 <tr>
@@ -998,6 +1010,8 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
               </tbody>
             </table>
           </div>
+            </>
+          )}
         </div>
       </div>
     )
