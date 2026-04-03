@@ -220,6 +220,7 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
     const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
     const [newName, setNewName] = useState('')
     const [adminLoginOpen, setAdminLoginOpen] = useState(false)
+    const [recapOpen, setRecapOpen] = useState(false)
     const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
     const pasteCatcherRef = useRef<HTMLTextAreaElement | null>(null)
     const adminPresenceChannelRef = useRef<any>(null)
@@ -679,19 +680,27 @@ function nextEvidenceStatus(v: EvidenceStatus): EvidenceStatus {
                   <span className="tableTitle">Rekapan Penilaian</span>
                   <span className="muted">Selesai Semua: {recapSelesai.length}</span>
                 </div>
+                <button className="button" type="button" onClick={() => setRecapOpen((v) => !v)}>
+                  {recapOpen ? 'Tutup Rekapan' : 'Buka Rekapan'}
+                </button>
               </div>
-              {recapSelesai.length ? (
+              {recapOpen ? (
+                recapSelesai.length ? (
                 <div className="recapGrid">
-                  {recapSelesai.map((e) => (
+                  {recapSelesai.map((e, idx) => (
                     <div key={e.id} className="recapItem">
-                      <div className="recapName">{e.name}</div>
+                      <div className="recapLeft">
+                        <div className="recapNo">{idx + 1}</div>
+                        <div className="recapName">{e.name}</div>
+                      </div>
                       <Badge label="Selesai" />
                     </div>
                   ))}
                 </div>
-              ) : (
+                ) : (
                 <div className="muted">Belum ada pegawai yang semua progresnya Selesai.</div>
-              )}
+                )
+              ) : null}
             </div>
           ) : null}
 
